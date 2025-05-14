@@ -89,16 +89,31 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] pb-32">
+      {/* Top Spacing */}
+      <div className="h-6"></div>
+      
       {/* Navbar */}
-      <nav className="flex justify-center mt-6 mb-8">
-        <div className="flex gap-6 bg-black rounded-full px-8 py-2 text-white font-medium text-lg shadow">
-          <Link href="/" className="hover:underline">Home</Link>
-          <a href="#" className="hover:underline">Reviews</a>
-          <a href="#" className="hover:underline">Contact</a>
+      <nav className="flex justify-center mt-8 mb-12">
+        <div className="flex gap-8 bg-black border border-white rounded-full px-8 py-3 font-medium text-base shadow-lg">
+          <Link href="/" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+            Home
+          </Link>
+          <span className="text-gray-600 select-none">|</span>
+          <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+            Reviews
+          </a>
+          <span className="text-gray-600 select-none">|</span>
+          <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+            Contact
+          </a>
         </div>
       </nav>
+
       {/* Judul */}
-      <h1 className="text-3xl md:text-4xl font-bold text-center mb-8">Our Best & Special Menu</h1>
+      <h1 className="text-4xl md:text-5xl font-bold text-center mb-16 text-black">
+        Our Best & Special Menu
+      </h1>
+
       {/* Kategori */}
       <div className="flex justify-center gap-6 mb-8 flex-wrap">
         {categories.map((cat) => (
@@ -119,14 +134,14 @@ export default function MenuPage() {
         {filteredMenus.map((item) => {
           const qty = getQty(item.id);
           return (
-            <div key={item.id} className="bg-black rounded-xl shadow-lg p-4 flex flex-col items-center text-white">
-              <div className="w-32 h-32 mb-4 relative">
+            <div key={item.id} className="bg-black rounded-xl shadow-lg p-4 flex flex-col items-center">
+              <div className="w-28 h-36 mb-4 relative">
                 <Image src={item.imageUrl || "/coffee-cup.png"} alt={item.name} fill style={{ objectFit: "contain" }} />
               </div>
               <div className="w-full">
-                <div className="font-bold text-lg mb-1">{item.name}</div>
-                <div className="text-gray-300 text-sm mb-2 min-h-[40px]">{item.description}</div>
-                <div className="font-bold text-base mb-2">Rp{Number(item.price).toLocaleString("id-ID")}</div>
+                <div className="font-bold text-lg mb-1 text-white">{item.name}</div>
+                <div className="text-gray-400 text-sm mb-2 min-h-[40px]">{item.description}</div>
+                <div className="font-bold text-base mb-2 text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
                 <div className="flex items-center justify-center gap-2 mt-4">
                   <button
                     className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition disabled:opacity-50"
@@ -138,7 +153,7 @@ export default function MenuPage() {
                     -
                   </button>
                   {qty > 0 && (
-                    <span className="font-bold text-lg w-6 text-center">{qty}</span>
+                    <span className="font-bold text-lg w-6 text-center text-white">{qty}</span>
                   )}
                   <button
                     className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition"

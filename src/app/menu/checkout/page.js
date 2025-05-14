@@ -55,47 +55,47 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4] flex flex-col">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col">
       {/* Header */}
-      <div className="bg-[#222] text-white px-6 py-4 flex items-center">
-        <button onClick={() => router.back()} className="text-2xl mr-4">←</button>
-        <span className="text-lg font-semibold">Checkout</span>
+      <div className="bg-black text-white px-8 py-5 flex items-center shadow-md">
+        <button onClick={() => router.back()} className="text-2xl mr-4 hover:text-gray-300 transition-colors">←</button>
+        <span className="text-xl font-semibold">Checkout</span>
       </div>
       {/* Konten dua kolom */}
-      <div className="flex flex-1 flex-col md:flex-row gap-8 p-8 max-w-4xl mx-auto w-full">
+      <div className="flex flex-1 flex-col md:flex-row gap-8 p-8 max-w-5xl mx-auto w-full">
         {/* Order Summary */}
-        <div className="bg-white rounded-xl shadow p-6 flex-1 min-w-[260px]">
-          <div className="font-bold text-lg mb-4">Order Summary</div>
-          <div className="flex flex-col gap-4 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg p-8 flex-1 min-w-[300px] border border-gray-100">
+          <div className="font-bold text-xl mb-6 text-black">Order Summary</div>
+          <div className="flex flex-col gap-6 mb-8">
             {cart.length === 0 && <div className="text-gray-400">Keranjang kosong</div>}
             {cart.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 border-b pb-2">
-                <div className="w-14 h-14 relative">
-                  <Image src={item.imageUrl || "/coffee-cup.png"} alt={item.name} fill style={{ objectFit: "cover" }} className="rounded-lg" />
+              <div key={item.id} className="flex items-center gap-4 border-b border-gray-100 pb-4">
+                <div className="w-16 h-16 relative">
+                  <Image src={item.imageUrl || "/coffee-cup.png"} alt={item.name} fill style={{ objectFit: "cover" }} className="rounded-xl" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold">{item.name}</div>
-                  <div className="text-gray-500 text-sm">Rp{item.price.toLocaleString("id-ID")} × {item.qty} pcs</div>
+                  <div className="font-semibold text-black">{item.name}</div>
+                  <div className="text-gray-600 mt-1">Rp{item.price.toLocaleString("id-ID")} × {item.qty} pcs</div>
                 </div>
-                <div className="font-bold">Rp{(item.price * item.qty).toLocaleString("id-ID")}</div>
+                <div className="font-bold text-black">Rp{(item.price * item.qty).toLocaleString("id-ID")}</div>
               </div>
             ))}
           </div>
-          <div className="mb-2 font-medium">Add Notes</div>
+          <div className="mb-3 font-medium text-black">Add Notes</div>
           <input
             type="text"
-            className="border rounded px-3 py-2 w-full mb-2"
-            placeholder="Value"
+            className="border border-gray-300 rounded-lg px-4 py-3 w-full mb-2 text-black placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
+            placeholder="Special requests or notes for your order"
             value={notes}
             onChange={e => setNotes(e.target.value)}
           />
         </div>
         {/* Payment Method & Ringkasan */}
-        <div className="bg-white rounded-xl shadow p-6 flex-1 min-w-[260px] flex flex-col gap-6">
+        <div className="bg-white rounded-2xl shadow-lg p-8 flex-1 min-w-[300px] flex flex-col gap-8 border border-gray-100">
           <div>
-            <div className="font-bold text-lg mb-4">Payment Method</div>
+            <div className="font-bold text-xl mb-4 text-black">Payment Method</div>
             <select
-              className="border rounded px-3 py-2 w-full"
+              className="border border-gray-300 rounded-lg px-4 py-3 w-full text-black bg-white focus:outline-none focus:border-black transition-colors cursor-pointer"
               value={payment}
               onChange={e => setPayment(e.target.value)}
             >
@@ -104,15 +104,26 @@ export default function CheckoutPage() {
               ))}
             </select>
           </div>
-          <div className="flex flex-col gap-2 text-base">
-            <div className="flex justify-between"><span>Product total</span><span>Rp{productTotal.toLocaleString("id-ID")}</span></div>
-            <div className="flex justify-between text-gray-500"><span>Discount</span><span>Rp{discount.toLocaleString("id-ID")}</span></div>
-            <div className="flex justify-between text-gray-500"><span>Fee</span><span>{fee === 0 ? "Free" : `Rp${fee.toLocaleString("id-ID")}`}</span></div>
-            <div className="flex justify-between font-bold text-lg mt-2"><span>Total</span><span>Rp{total.toLocaleString("id-ID")}</span></div>
+          <div className="flex flex-col gap-3 text-base">
+            <div className="flex justify-between text-black"><span>Product total</span><span>Rp{productTotal.toLocaleString("id-ID")}</span></div>
+            <div className="flex justify-between text-gray-600"><span>Discount</span><span>Rp{discount.toLocaleString("id-ID")}</span></div>
+            <div className="flex justify-between text-gray-600"><span>Fee</span><span>{fee === 0 ? "Free" : `Rp${fee.toLocaleString("id-ID")}`}</span></div>
+            <div className="h-px bg-gray-200 my-2"></div>
+            <div className="flex justify-between font-bold text-lg text-black"><span>Total</span><span>Rp{total.toLocaleString("id-ID")}</span></div>
           </div>
-          <div className="flex gap-4 mt-6">
-            <button onClick={handleEdit} className="flex-1 py-2 rounded bg-[#b6a89a] text-white font-semibold shadow hover:bg-[#a89c8a] transition">Edit</button>
-            <button onClick={handleOrder} className="flex-1 py-2 rounded bg-black text-white font-semibold shadow hover:bg-gray-800 transition">Order</button>
+          <div className="flex gap-4 mt-auto">
+            <button 
+              onClick={handleEdit} 
+              className="flex-1 py-3 px-6 rounded-lg border-2 border-black text-black font-semibold hover:bg-black hover:text-white transition-colors"
+            >
+              Edit Order
+            </button>
+            <button 
+              onClick={handleOrder} 
+              className="flex-1 py-3 px-6 rounded-lg bg-black text-white font-semibold hover:bg-gray-800 transition-colors"
+            >
+              Place Order
+            </button>
           </div>
         </div>
       </div>
