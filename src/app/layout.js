@@ -27,9 +27,7 @@ export default async function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Tombol logout demo di pojok kanan atas jika login */}
-        <div className="absolute top-6 right-8 z-20">
-          {isLoggedIn && <LogoutButton />}
-        </div>
+        {/* {isLoggedIn && <LogoutButton />} */}
         {children}
       </body>
     </html>

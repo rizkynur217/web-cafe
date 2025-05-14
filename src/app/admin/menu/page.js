@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
 
 const categories = [
   { label: "All", value: "ALL" },
@@ -105,14 +106,14 @@ export default function AdminMenuPage() {
   }
 
   // Toggle isAvailable (see/unsee)
-  async function handleToggleSee(menu) {
-    await fetch(`/api/menu/${menu.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isAvailable: !menu.isAvailable }),
-    });
-    fetchMenus();
-  }
+  // async function handleToggleSee(menu) {
+  //   await fetch(`/api/menu/${menu.id}`, {
+  //     method: "PATCH",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ isAvailable: !menu.isAvailable }),
+  //   });
+  //   fetchMenus();
+  // }
 
   // Delete menu
   async function handleDelete(menu) {
@@ -145,7 +146,7 @@ export default function AdminMenuPage() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-56 bg-black text-white flex flex-col items-center py-8 rounded-r-3xl mr-8 min-h-screen">
+      <aside className="fixed top-0 left-0 h-screen w-56 bg-black text-white flex flex-col items-center py-8 rounded-r-3xl z-20">
         <div className="mb-12 w-full">
           <div className="text-2xl font-bold text-center mb-8">Dashboard</div>
           <nav className="flex flex-col gap-4 px-6">
@@ -153,9 +154,12 @@ export default function AdminMenuPage() {
             <Link href="/admin/menu" className="py-2 px-4 rounded-lg bg-gray-800 text-white text-lg font-medium">Menu</Link>
           </nav>
         </div>
+        <div className="mt-auto w-full px-6">
+          <LogoutButton className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium" />
+        </div>
       </aside>
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 ml-56">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-black">Dashboard Admin</h1>
@@ -190,14 +194,6 @@ export default function AdminMenuPage() {
                   <div className="text-gray-300 text-sm mb-2 min-h-[40px]">{item.description}</div>
                   <div className="font-bold text-lg mb-2">Rp{Number(item.price).toLocaleString("id-ID")}</div>
                   <div className="flex gap-4 mt-2 text-2xl">
-                    <button
-                      className={item.isAvailable ? "hover:text-blue-400" : "text-gray-400 hover:text-blue-400"}
-                      title={item.isAvailable ? "Unsee (sembunyikan dari pelanggan)" : "See (tampilkan ke pelanggan)"}
-                      onClick={() => handleToggleSee(item)}
-                      type="button"
-                    >
-                      {item.isAvailable ? <span role="img" aria-label="see">👁️</span> : <span role="img" aria-label="unsee">👁️‍🗨️</span>}
-                    </button>
                     <button className="hover:text-yellow-400" title="Edit" onClick={() => handleEdit(item)} type="button"><span role="img" aria-label="edit">✏️</span></button>
                     <button className="hover:text-red-400" title="Delete" onClick={() => handleDelete(item)} type="button"><span role="img" aria-label="hapus">🗑️</span></button>
                   </div>

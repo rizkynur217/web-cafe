@@ -53,72 +53,74 @@ export default async function AdminDashboard() {
     return d.toLocaleTimeString("id-ID", { hour12: false });
   }
 
-  // Helper untuk update status (dummy, akan dihubungkan ke API)
-  async function handleStatusClick(orderId, currentStatus) {
-    if (currentStatus === "CANCELLED") return;
-    // Nanti: fetch('/api/admin/order-status', { method: 'POST', body: ... })
-    // Untuk SSR, perlu diubah ke client component jika ingin interaktif langsung
-    alert(`Update status order #${orderId}`);
-  }
-
   return (
-    <div className="min-h-screen bg-gray-200 flex">
+    <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-48 bg-[#222] text-white flex flex-col justify-between rounded-l-2xl m-4 p-4">
-        <div>
-          <div className="font-bold text-lg mb-6">Dashboard</div>
-          <nav className="flex flex-col gap-2">
-            <Link href="/admin" className="py-2 px-3 rounded bg-gray-700">Dashboard</Link>
-            <Link href="/admin/menu" className="py-2 px-3 rounded hover:bg-gray-700">Menu</Link>
+      <aside className="w-56 bg-black text-white flex flex-col items-center py-8 rounded-r-3xl mr-8 min-h-screen">
+        <div className="mb-12 w-full">
+          <div className="text-2xl font-bold text-center mb-8">Dashboard</div>
+          <nav className="flex flex-col gap-4 px-6">
+            <Link href="/admin" className="py-2 px-4 rounded-lg bg-gray-800 text-white text-lg font-medium">Dashboard</Link>
+            <Link href="/admin/menu" className="py-2 px-4 rounded-lg hover:bg-gray-800 transition text-lg font-medium">Menu</Link>
           </nav>
         </div>
-        <div className="mb-2">
-          {/* Hapus tombol logout di sidebar kiri bawah */}
+        <div className="mt-auto w-full px-6">
+          <form action="/api/auth/logout" method="POST">
+            <button type="submit" className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium">
+              Logout
+            </button>
+          </form>
         </div>
       </aside>
+
       {/* Main Content */}
-      <main className="flex-1 p-6">
-        <div className="bg-[#222] text-white rounded-xl px-6 py-3 text-xl font-semibold mb-6 w-fit">Dashboard Admin</div>
+      <main className="flex-1 p-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-black">Dashboard Admin</h1>
+        </div>
+
         {/* Card statistik */}
-        <div className="flex gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-6 mb-8">
           {stats.map((s, i) => (
-            <div key={i} className="bg-white rounded-lg shadow p-4 w-48 flex flex-col items-center">
-              <div className="text-gray-600 text-sm mb-2">{s.label}</div>
-              <div className="text-2xl font-bold text-red-600">{s.value}</div>
+            <div key={i} className="bg-black rounded-2xl shadow-lg p-6 flex flex-col items-center text-white">
+              <div className="text-gray-300 text-sm mb-2">{s.label}</div>
+              <div className="text-2xl font-bold">{s.value}</div>
             </div>
           ))}
         </div>
+
         {/* Tabel pesanan terbaru */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="font-semibold mb-2">Orderan Terbaru</div>
+        <div className="bg-black rounded-2xl shadow-lg p-6 text-white">
+          <div className="text-xl font-semibold mb-4">Orderan Terbaru</div>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm border">
+            <table className="min-w-full text-sm">
               <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-2 py-1">#</th>
-                  <th className="border px-2 py-1">Nama Pemesan</th>
-                  <th className="border px-2 py-1">Kuantitas</th>
-                  <th className="border px-2 py-1">Harga</th>
-                  <th className="border px-2 py-1">Waktu Pemesanan</th>
-                  <th className="border px-2 py-1">Status</th>
+                <tr className="border-b border-gray-700">
+                  <th className="px-4 py-3 text-left">#</th>
+                  <th className="px-4 py-3 text-left">Nama Pemesan</th>
+                  <th className="px-4 py-3 text-center">Kuantitas</th>
+                  <th className="px-4 py-3 text-right">Harga</th>
+                  <th className="px-4 py-3 text-center">Waktu</th>
+                  <th className="px-4 py-3 text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((o, i) => (
-                  <tr key={o.id}>
-                    <td className="border px-2 py-1 text-center">{String(i + 1).padStart(2, "0")}</td>
-                    <td className="border px-2 py-1">{o.user?.name || o.user?.email || '-'}</td>
-                    <td className="border px-2 py-1 text-center">{o.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                    <td className="border px-2 py-1">Rp{o.totalPrice.toLocaleString("id-ID")}</td>
-                    <td className="border px-2 py-1">{formatTime(o.createdAt)}</td>
-                    <td className="border px-2 py-1">
+                  <tr key={o.id} className="border-b border-gray-700">
+                    <td className="px-4 py-3">{String(i + 1).padStart(2, "0")}</td>
+                    <td className="px-4 py-3">{o.user?.name || o.user?.email || '-'}</td>
+                    <td className="px-4 py-3 text-center">{o.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                    <td className="px-4 py-3 text-right">Rp{o.totalPrice.toLocaleString("id-ID")}</td>
+                    <td className="px-4 py-3 text-center">{formatTime(o.createdAt)}</td>
+                    <td className="px-4 py-3 text-center">
                       {o.status === "CANCELLED" ? (
                         <span className="text-red-500 font-semibold cursor-not-allowed">{STATUS_LABEL[o.status]}</span>
                       ) : (
                         <form action={`/api/admin/order-status`} method="POST">
                           <input type="hidden" name="orderId" value={o.id} />
                           <input type="hidden" name="currentStatus" value={o.status} />
-                          <button type="submit" className="underline text-blue-600 font-semibold cursor-pointer">
+                          <button type="submit" className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition">
                             {STATUS_LABEL[o.status]}
                           </button>
                         </form>
@@ -128,13 +130,13 @@ export default async function AdminDashboard() {
                 ))}
                 {/* Baris kosong untuk tampilan */}
                 {Array.from({ length: Math.max(0, 6 - orders.length) }).map((_, i) => (
-                  <tr key={i+orders.length}>
-                    <td className="border px-2 py-1">&nbsp;</td>
-                    <td className="border px-2 py-1">&nbsp;</td>
-                    <td className="border px-2 py-1">&nbsp;</td>
-                    <td className="border px-2 py-1">&nbsp;</td>
-                    <td className="border px-2 py-1">&nbsp;</td>
-                    <td className="border px-2 py-1">&nbsp;</td>
+                  <tr key={i+orders.length} className="border-b border-gray-700">
+                    <td className="px-4 py-3">&nbsp;</td>
+                    <td className="px-4 py-3">&nbsp;</td>
+                    <td className="px-4 py-3">&nbsp;</td>
+                    <td className="px-4 py-3">&nbsp;</td>
+                    <td className="px-4 py-3">&nbsp;</td>
+                    <td className="px-4 py-3">&nbsp;</td>
                   </tr>
                 ))}
               </tbody>
