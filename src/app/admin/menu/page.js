@@ -137,9 +137,9 @@ export default function AdminMenuPage() {
   }
 
   const filteredMenus = Array.isArray(menus)
-    ? (category === "All" || category === "ALL"
+    ? (category === "All"
         ? menus
-        : menus.filter((m) => m.category === category))
+        : menus.filter((m) => m.category === categories.find(cat => cat.label === category)?.value))
     : [];
 
   // Sidebar & Layout
@@ -180,23 +180,45 @@ export default function AdminMenuPage() {
           ))}
         </div>
         {/* Grid Menu */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
           {filteredMenus.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 text-xl py-16">Tidak ada menu untuk kategori ini.</div>
           ) : (
             filteredMenus.map((item) => (
-              <div key={item.id} className="bg-black rounded-2xl shadow-lg p-6 flex flex-col items-center text-white min-h-[340px] w-full">
-                <div className="w-36 h-36 mb-4 relative">
-                  <Image src={item.imageUrl || "/coffee-cup.png"} alt={item.name} fill style={{ objectFit: "contain" }} className="rounded-xl" />
-                </div>
-                <div className="w-full">
-                  <div className="font-bold text-xl mb-1">{item.name}</div>
-                  <div className="text-gray-300 text-sm mb-2 min-h-[40px]">{item.description}</div>
-                  <div className="font-bold text-lg mb-2">Rp{Number(item.price).toLocaleString("id-ID")}</div>
-                  <div className="flex gap-4 mt-2 text-2xl">
-                    <button className="hover:text-yellow-400" title="Edit" onClick={() => handleEdit(item)} type="button"><span role="img" aria-label="edit">✏️</span></button>
-                    <button className="hover:text-red-400" title="Delete" onClick={() => handleDelete(item)} type="button"><span role="img" aria-label="hapus">🗑️</span></button>
+              <div key={item.id} className="bg-black rounded-2xl shadow-lg p-6 flex flex-col text-white min-h-[380px] w-full">
+                <div className="flex flex-col items-center flex-1">
+                  <div className="w-40 h-40 mb-4 relative bg-white/10 rounded-xl p-2">
+                    <Image 
+                      src={item.imageUrl || "/coffee-cup.png"} 
+                      alt={item.name} 
+                      fill 
+                      style={{ objectFit: "contain" }} 
+                      className="rounded-lg"
+                    />
                   </div>
+                  <div className="w-full text-center">
+                    <h3 className="font-bold text-xl mb-2 text-white">{item.name}</h3>
+                    <p className="text-white/90 text-sm mb-3 line-clamp-2 min-h-[40px]">{item.description}</p>
+                    <div className="font-bold text-lg mb-3 text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
+                  </div>
+                </div>
+                <div className="flex justify-center gap-6 pt-3 border-t border-white/10">
+                  <button 
+                    className="text-2xl hover:text-yellow-400 transition-colors" 
+                    title="Edit" 
+                    onClick={() => handleEdit(item)} 
+                    type="button"
+                  >
+                    <span role="img" aria-label="edit">✏️</span>
+                  </button>
+                  <button 
+                    className="text-2xl hover:text-red-400 transition-colors" 
+                    title="Delete" 
+                    onClick={() => handleDelete(item)} 
+                    type="button"
+                  >
+                    <span role="img" aria-label="hapus">🗑️</span>
+                  </button>
                 </div>
               </div>
             ))
@@ -204,49 +226,101 @@ export default function AdminMenuPage() {
         </div>
         {/* Modal/Form Tambah Menu */}
         {showForm && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-[#ededed] rounded-xl w-full max-w-3xl shadow-lg relative flex flex-col min-h-[500px]">
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl w-full max-w-3xl shadow-lg relative flex flex-col min-h-[500px]">
               {/* Header */}
-              <div className="flex items-center justify-between px-8 py-4 bg-[#222] rounded-t-xl">
-                <button type="button" onClick={() => setShowForm(false)} className="text-white text-2xl font-bold flex items-center gap-2">
+              <div className="flex items-center justify-between px-8 py-4 bg-black rounded-t-xl">
+                <button type="button" onClick={() => setShowForm(false)} className="text-white text-lg font-medium flex items-center gap-2 hover:text-gray-300 transition-colors">
                   <span className="text-2xl">←</span> Kembali
                 </button>
-                <h2 className="text-2xl font-bold text-white">Tambah Menu</h2>
+                <h2 className="text-xl font-bold text-white">{form.id ? 'Edit Menu' : 'Tambah Menu'}</h2>
                 <div className="w-24" /> {/* Spacer */}
               </div>
               {/* Konten dua kolom */}
-              <div className="flex flex-1 gap-8 px-8 py-8">
+              <div className="flex flex-1 gap-8 p-8">
                 {/* Kolom kiri: Gambar */}
                 <div className="flex flex-col items-center w-1/2">
-                  <div className="w-56 h-56 relative rounded-xl overflow-hidden bg-gray-200 mb-4">
+                  <div className="w-56 h-56 relative rounded-xl overflow-hidden bg-gray-50 mb-4 border-2 border-dashed border-gray-300">
                     {form.imageUrl ? (
-                      <Image src={form.imageUrl} alt="Preview" fill style={{ objectFit: "cover" }} />
+                      <Image src={form.imageUrl} alt="Preview" fill style={{ objectFit: "cover" }} className="rounded-lg" />
                     ) : (
-                      <span className="text-gray-400 flex items-center justify-center w-full h-full">No Image</span>
+                      <div className="flex flex-col items-center justify-center w-full h-full text-gray-400">
+                        <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm font-medium">Pilih Gambar Menu</span>
+                      </div>
                     )}
                   </div>
                   <label className="w-full">
                     <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                    <span className="block w-full py-2 px-4 rounded bg-black text-white text-center font-semibold cursor-pointer hover:bg-gray-800 transition">Upload Gambar</span>
+                    <span className="block w-full py-3 px-4 rounded-lg bg-black text-white text-center font-medium cursor-pointer hover:bg-gray-800 transition-colors">
+                      {form.imageUrl ? 'Ganti Gambar' : 'Upload Gambar'}
+                    </span>
                   </label>
                 </div>
                 {/* Kolom kanan: Form */}
-                <form onSubmit={handleSubmit} className="flex flex-col w-1/2 gap-4 justify-between">
-                  <div>
-                    <label className="block font-semibold mb-1">Nama Makanan</label>
-                    <input type="text" placeholder="Nama Makanan" className="border rounded px-3 py-2 w-full mb-3" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required readOnly={!!form.id} />
-                    <label className="block font-semibold mb-1">Deskripsi</label>
-                    <textarea placeholder="Deskripsi" className="border rounded px-3 py-2 w-full mb-3" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} required />
-                    <label className="block font-semibold mb-1">Kategori</label>
-                    <select className="border rounded px-3 py-2 w-full mb-3" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} required>
-                      {categories.filter(c => c.value !== "ALL").map(cat => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                      ))}
-                    </select>
-                    <label className="block font-semibold mb-1">Harga</label>
-                    <input type="number" placeholder="Harga" className="border rounded px-3 py-2 w-full mb-3" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required min={0} />
+                <form onSubmit={handleSubmit} className="flex flex-col w-1/2 gap-4">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block font-semibold text-gray-800 mb-1.5">Nama Menu</label>
+                      <input 
+                        type="text" 
+                        placeholder="Contoh: Cappuccino" 
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-colors text-gray-800 placeholder-gray-400" 
+                        value={form.name} 
+                        onChange={e => setForm(f => ({ ...f, name: e.target.value }))} 
+                        required 
+                        readOnly={!!form.id}
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-gray-800 mb-1.5">Deskripsi</label>
+                      <textarea 
+                        placeholder="Deskripsi singkat menu" 
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-colors text-gray-800 placeholder-gray-400" 
+                        value={form.description} 
+                        onChange={e => setForm(f => ({ ...f, description: e.target.value }))} 
+                        required 
+                        rows="3"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-gray-800 mb-1.5">Kategori</label>
+                      <select 
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-colors text-gray-800" 
+                        value={form.category} 
+                        onChange={e => setForm(f => ({ ...f, category: e.target.value }))} 
+                        required
+                      >
+                        {categories.filter(c => c.value !== "ALL").map(cat => (
+                          <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-gray-800 mb-1.5">Harga</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
+                        <input 
+                          type="number" 
+                          placeholder="0" 
+                          className="w-full pl-12 pr-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-colors text-gray-800 placeholder-gray-400" 
+                          value={form.price} 
+                          onChange={e => setForm(f => ({ ...f, price: e.target.value }))} 
+                          required 
+                          min={0}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <button type="submit" className="w-full py-2 rounded bg-black text-white font-semibold shadow hover:bg-gray-800 transition mt-4" disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</button>
+                  <button 
+                    type="submit" 
+                    className="w-full py-3 rounded-lg bg-black text-white font-semibold shadow-lg hover:bg-gray-800 transition-colors mt-6 disabled:bg-gray-400" 
+                    disabled={loading}
+                  >
+                    {loading ? "Menyimpan..." : "Simpan Menu"}
+                  </button>
                 </form>
               </div>
             </div>
