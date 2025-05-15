@@ -40,14 +40,16 @@ model MenuItem {
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
-  user       User        @relation(fields: [userId], references: [id])
-  userId     Int
-  totalPrice Float
-  status     OrderStatus @default(PENDING)
-  createdAt  DateTime    @default(now())
+  id            Int         @id @default(autoincrement())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int
+  totalPrice    Float
+  notes         String?
+  paymentMethod String?
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
 
-  items      OrderItem[]
+  items         OrderItem[]
 }
 
 model OrderItem {

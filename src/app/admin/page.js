@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
-import prisma from "@/lib/prisma";
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 const STATUS_ORDER = ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"];
 const STATUS_LABEL = {
@@ -11,41 +11,20 @@ const STATUS_LABEL = {
   CANCELLED: "Dibatalkan",
 };
 
-export default async function AdminDashboard() {
-  // Cek login
-  const cookie = await cookies().get("userId");
-  if (!cookie) {
-    return redirect("/");
-  }
-  // Ambil user dari database
-  const user = await prisma.user.findUnique({ where: { id: Number(cookie.value) } });
-  if (!user || user.role !== "ADMIN") {
-    return redirect("/");
-  }
+export default function AdminDashboard() {
+  const [stats, setStats] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-  // Query statistik dari database
-  const totalPesanan = await prisma.order.count();
-  const jumlahPengguna = await prisma.user.count();
-  const jumlahMenu = await prisma.menuItem.count();
-  const totalRevenueAgg = await prisma.order.aggregate({ _sum: { totalPrice: true } });
-  const totalRevenue = totalRevenueAgg._sum.totalPrice || 0;
-
-  const stats = [
-    { label: "Total Pesanan", value: totalPesanan },
-    { label: "Jumlah Pengguna", value: jumlahPengguna },
-    { label: "Jumlah Menu", value: jumlahMenu },
-    { label: "Total Revenue", value: `Rp${totalRevenue.toLocaleString("id-ID")}` },
-  ];
-
-  // Query order terbaru
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: true,
-      items: true,
-    },
-    take: 10,
-  });
+  useEffect(() => {
+    // Fetch dashboard data
+    fetch('/api/admin/dashboard')
+      .then(res => res.json())
+      .then(data => {
+        setStats(data.stats);
+        setOrders(data.orders);
+      })
+      .catch(err => console.error('Error fetching dashboard data:', err));
+  }, []);
 
   // Helper untuk format waktu
   function formatTime(date) {
@@ -53,10 +32,40 @@ export default async function AdminDashboard() {
     return d.toLocaleTimeString("id-ID", { hour12: false });
   }
 
+  // Handle status change
+  async function handleStatusChange(orderId, newStatus) {
+    try {
+      const res = await fetch('/api/order-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, status: newStatus }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update status');
+
+      // Remove order from list if status is COMPLETED or CANCELLED
+      if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
+        setOrders(orders.filter(order => order.id !== orderId));
+      } else {
+        // Update orders list with new status
+        setOrders(orders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus }
+            : order
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Failed to update order status');
+    }
+  }
+
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-56 bg-black text-white flex flex-col items-center py-8 rounded-r-3xl mr-8 min-h-screen">
+      <aside className="fixed top-0 left-0 h-screen w-56 bg-[#1C1C1C] text-white flex flex-col items-center py-8 rounded-r-3xl">
         <div className="mb-12 w-full">
           <div className="text-2xl font-bold text-center mb-8">Dashboard</div>
           <nav className="flex flex-col gap-4 px-6">
@@ -73,8 +82,8 @@ export default async function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
+      {/* Main Content - Add margin left to account for fixed sidebar */}
+      <main className="flex-1 p-8 ml-56">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-black">Dashboard Admin</h1>
@@ -83,7 +92,7 @@ export default async function AdminDashboard() {
         {/* Card statistik */}
         <div className="grid grid-cols-4 gap-6 mb-8">
           {stats.map((s, i) => (
-            <div key={i} className="bg-black rounded-2xl shadow-lg p-6 flex flex-col items-center text-white">
+            <div key={i} className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 flex flex-col items-center text-white">
               <div className="text-gray-300 text-sm mb-2">{s.label}</div>
               <div className="text-2xl font-bold">{s.value}</div>
             </div>
@@ -91,56 +100,51 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Tabel pesanan terbaru */}
-        <div className="bg-black rounded-2xl shadow-lg p-6 text-white">
+        <div className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 text-white">
           <div className="text-xl font-semibold mb-4">Orderan Terbaru</div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left">Nama Pemesan</th>
-                  <th className="px-4 py-3 text-center">Kuantitas</th>
-                  <th className="px-4 py-3 text-right">Harga</th>
-                  <th className="px-4 py-3 text-center">Waktu</th>
-                  <th className="px-4 py-3 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o, i) => (
-                  <tr key={o.id} className="border-b border-gray-700">
-                    <td className="px-4 py-3">{String(i + 1).padStart(2, "0")}</td>
-                    <td className="px-4 py-3">{o.user?.name || o.user?.email || '-'}</td>
-                    <td className="px-4 py-3 text-center">{o.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                    <td className="px-4 py-3 text-right">Rp{o.totalPrice.toLocaleString("id-ID")}</td>
-                    <td className="px-4 py-3 text-center">{formatTime(o.createdAt)}</td>
-                    <td className="px-4 py-3 text-center">
-                      {o.status === "CANCELLED" ? (
-                        <span className="text-red-500 font-semibold cursor-not-allowed">{STATUS_LABEL[o.status]}</span>
-                      ) : (
-                        <form action={`/api/admin/order-status`} method="POST">
-                          <input type="hidden" name="orderId" value={o.id} />
-                          <input type="hidden" name="currentStatus" value={o.status} />
-                          <button type="submit" className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition">
-                            {STATUS_LABEL[o.status]}
-                          </button>
-                        </form>
-                      )}
-                    </td>
+          <div className="relative">
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="min-w-full text-sm">
+                <thead className="sticky top-0 bg-[#1C1C1C] z-10">
+                  <tr className="border-b border-gray-700">
+                    <th className="px-4 py-3 text-left">#</th>
+                    <th className="px-4 py-3 text-left">Nama Pemesan</th>
+                    <th className="px-4 py-3 text-center">Kuantitas</th>
+                    <th className="px-4 py-3 text-right">Harga</th>
+                    <th className="px-4 py-3 text-center">Waktu</th>
+                    <th className="px-4 py-3 text-center">Status</th>
                   </tr>
-                ))}
-                {/* Baris kosong untuk tampilan */}
-                {Array.from({ length: Math.max(0, 6 - orders.length) }).map((_, i) => (
-                  <tr key={i+orders.length} className="border-b border-gray-700">
-                    <td className="px-4 py-3">&nbsp;</td>
-                    <td className="px-4 py-3">&nbsp;</td>
-                    <td className="px-4 py-3">&nbsp;</td>
-                    <td className="px-4 py-3">&nbsp;</td>
-                    <td className="px-4 py-3">&nbsp;</td>
-                    <td className="px-4 py-3">&nbsp;</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {orders.map((o, i) => (
+                    <tr key={o.id} className="border-b border-gray-700 hover:bg-gray-800/50">
+                      <td className="px-4 py-3">{String(i + 1).padStart(2, "0")}</td>
+                      <td className="px-4 py-3">{o.user?.name || o.user?.email || '-'}</td>
+                      <td className="px-4 py-3 text-center">{o.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                      <td className="px-4 py-3 text-right">Rp{o.totalPrice.toLocaleString("id-ID")}</td>
+                      <td className="px-4 py-3 text-center">{formatTime(o.createdAt)}</td>
+                      <td className="px-4 py-3 text-center">
+                        {o.status === "CANCELLED" ? (
+                          <span className="text-red-500 font-semibold cursor-not-allowed">{STATUS_LABEL[o.status]}</span>
+                        ) : (
+                          <select
+                            className="bg-[#1C1C1C] text-white border border-gray-700 rounded px-2 py-1 hover:border-gray-500 focus:outline-none focus:border-gray-400"
+                            value={o.status}
+                            onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                          >
+                            {STATUS_ORDER.map((status) => (
+                              <option key={status} value={status}>
+                                {STATUS_LABEL[status]}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </main>
