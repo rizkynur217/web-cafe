@@ -18,6 +18,10 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("ALL");
   const [cart, setCart] = useState([]); // {id, name, price, qty}
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +38,47 @@ export default function MenuPage() {
       }
     }
     fetchMenu();
+
+    // Check authentication status
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          setIsAuthenticated(true);
+          setIsAdmin(data.role === "ADMIN");
+          // Restore pending cart if exists and not admin
+          if (typeof window !== "undefined" && data.role !== "ADMIN") {
+            const pendingCart = localStorage.getItem("pendingCart");
+            if (pendingCart) {
+              setCart(JSON.parse(pendingCart));
+              localStorage.removeItem("pendingCart");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error checking auth:", error);
+      }
+    }
+    checkAuth();
   }, []);
+
+  // Add effect for error handling
+  useEffect(() => {
+    let timeoutId;
+    if (error) {
+      setShowError(true);
+      timeoutId = setTimeout(() => {
+        setShowError(false);
+        setTimeout(() => {
+          setError("");
+        }, 300); // Wait for fade out animation before clearing error
+      }, 6000);
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [error]);
 
   const filteredMenus = category === "ALL"
     ? menuItems
@@ -42,6 +86,23 @@ export default function MenuPage() {
 
   // Tambah ke keranjang
   function addToCart(item) {
+    setError("");
+    
+    if (!isAuthenticated) {
+      // Save current cart to localStorage before redirecting
+      const currentCart = [...cart];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pendingCart", JSON.stringify(currentCart));
+      }
+      router.push("/login");
+      return;
+    }
+
+    if (isAdmin) {
+      setError("Admin tidak diperbolehkan membuat pesanan");
+      return;
+    }
+
     setCart((prev) => {
       const exist = prev.find((c) => c.id === item.id);
       if (exist) {
@@ -54,6 +115,11 @@ export default function MenuPage() {
 
   // Kurangi dari keranjang
   function removeFromCart(item) {
+    if (isAdmin) {
+      setError("Admin tidak diperbolehkan membuat pesanan");
+      return;
+    }
+
     setCart((prev) => {
       const exist = prev.find((c) => c.id === item.id);
       if (exist && exist.qty > 1) {
@@ -89,6 +155,13 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] pb-32">
+      {/* Error Message */}
+      {error && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-black/90 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ${showError ? 'opacity-100' : 'opacity-0'}`}>
+          {error}
+        </div>
+      )}
+
       {/* Top Spacing */}
       <div className="h-6"></div>
       

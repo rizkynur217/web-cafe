@@ -20,6 +20,7 @@ model User {
   email     String   @unique
   password  String   // Simpan password yang sudah di-hash
   role      Role     @default(CUSTOMER)
+  phone     String?  // Optional phone number
   createdAt DateTime @default(now())
 
   orders    Order[]

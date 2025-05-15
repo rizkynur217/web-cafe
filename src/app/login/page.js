@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -37,11 +37,20 @@ export default function Login() {
       if (!res.ok) {
         setError(data.error || "Gagal login.");
       } else {
-        // Cek role user dari response
-        if (data.user && data.user.role === "ADMIN") {
-          router.push("/admin");
-        } else {
-          router.push("/");
+        // Check if there's a pending cart
+        if (typeof window !== "undefined") {
+          const pendingCart = localStorage.getItem("pendingCart");
+          if (pendingCart) {
+            localStorage.removeItem("pendingCart"); // Clear the pending cart
+            router.push("/menu"); // Return to menu page
+          } else {
+            // Cek role user dari response
+            if (data.user && data.user.role === "ADMIN") {
+              router.push("/admin");
+            } else {
+              router.push("/");
+            }
+          }
         }
       }
     } catch (err) {
