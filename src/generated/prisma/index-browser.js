@@ -160,6 +160,16 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   price: 'price'
 };
 
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  rating: 'rating',
+  comment: 'comment',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  menuItemId: 'menuItemId',
+  orderId: 'orderId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -198,7 +208,8 @@ exports.Prisma.ModelName = {
   User: 'User',
   MenuItem: 'MenuItem',
   Order: 'Order',
-  OrderItem: 'OrderItem'
+  OrderItem: 'OrderItem',
+  Review: 'Review'
 };
 
 /**

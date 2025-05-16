@@ -17,6 +17,7 @@ model User {
   createdAt DateTime @default(now())
   phone     String?
   orders    Order[]
+  reviews   Review[]
 }
 
 model MenuItem {
@@ -30,6 +31,7 @@ model MenuItem {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   orderItems  OrderItem[]
+  reviews     Review[]
 }
 
 model Order {
@@ -42,6 +44,7 @@ model Order {
   paymentMethod String?
   user          User        @relation(fields: [userId], references: [id])
   items         OrderItem[]
+  reviews       Review[]
 }
 
 model OrderItem {
@@ -52,6 +55,21 @@ model OrderItem {
   price      Float
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
   order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  userId     Int
+  menuItemId Int
+  orderId    Int
+  user       User     @relation(fields: [userId], references: [id])
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  @@unique([userId, menuItemId, orderId])
 }
 
 enum Role {

@@ -8,6 +8,12 @@ export default function HistoryPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -26,7 +32,25 @@ export default function HistoryPage() {
         const ordersRes = await fetch(`/api/order/user/${userData.id}`);
         if (ordersRes.ok) {
           const data = await ordersRes.json();
-          setOrders(data);
+          // Load reviews for each order
+          const ordersWithReviews = await Promise.all(data.map(async (order) => {
+            const reviews = await Promise.all(order.items.map(async (item) => {
+              const reviewRes = await fetch(`/api/reviews?menuItemId=${item.menuItem.id}&orderId=${order.id}`);
+              if (reviewRes.ok) {
+                const reviewData = await reviewRes.json();
+                return reviewData[0]; // Get the first review if exists
+              }
+              return null;
+            }));
+            return {
+              ...order,
+              items: order.items.map((item, index) => ({
+                ...item,
+                review: reviews[index]
+              }))
+            };
+          }));
+          setOrders(ordersWithReviews);
         } else {
           const error = await ordersRes.json();
           setError(error.error || "Failed to load orders");
@@ -76,6 +100,74 @@ export default function HistoryPage() {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Function to handle review submission
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+
+    setSubmittingReview(true);
+    setError("");
+    
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          menuItemId: selectedItem.menuItem.id,
+          orderId: selectedItem.order.id,
+          rating,
+          comment: comment.trim() || null,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal menambahkan ulasan');
+      }
+
+      // Update the orders state with the new review
+      setOrders(orders.map(order => {
+        if (order.id === selectedItem.order.id) {
+          return {
+            ...order,
+            items: order.items.map(item => {
+              if (item.menuItem.id === selectedItem.menuItem.id) {
+                return { ...item, review: data };
+              }
+              return item;
+            }),
+          };
+        }
+        return order;
+      }));
+      
+      setReviewSuccess("Review berhasil ditambahkan!");
+      setTimeout(() => {
+        setReviewModalOpen(false);
+        setReviewSuccess("");
+        setRating(5);
+        setComment("");
+        setSelectedItem(null);
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      setError(error.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  // Function to open review modal
+  const openReviewModal = (item, order) => {
+    setSelectedItem({ ...item, order });
+    setRating(5);
+    setComment("");
+    setReviewModalOpen(true);
   };
 
   if (loading) {
@@ -150,6 +242,30 @@ export default function HistoryPage() {
                         <div>
                           <p className="font-medium text-black">{item.menuItem.name}</p>
                           <p className="text-sm text-gray-500">{item.quantity}x @ {formatPrice(item.price)}</p>
+                          {item.review ? (
+                            <div className="mt-2">
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <span key={i} className="text-yellow-400">
+                                    {i < item.review.rating ? "★" : "☆"}
+                                  </span>
+                                ))}
+                              </div>
+                              {item.review.comment && (
+                                <p className="text-sm text-gray-600 mt-1">{item.review.comment}</p>
+                              )}
+                            </div>
+                          ) : (
+                            order.status === 'COMPLETED' && (
+                              <button
+                                onClick={() => openReviewModal(item, order)}
+                                className="mt-2 px-4 py-1 bg-[#6d4c2c] text-white rounded-full text-sm hover:bg-[#8b6d4c] transition-colors duration-200 flex items-center gap-2"
+                              >
+                                <span>⭐</span>
+                                Beri Ulasan
+                              </button>
+                            )
+                          )}
                         </div>
                       </div>
                       <p className="font-medium text-black">
@@ -184,6 +300,80 @@ export default function HistoryPage() {
           </div>
         )}
       </main>
+
+      {/* Review Modal */}
+      {reviewModalOpen && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-semibold mb-4">
+              Beri Ulasan untuk {selectedItem.menuItem.name}
+            </h3>
+            
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+                {error}
+              </div>
+            )}
+            
+            {reviewSuccess ? (
+              <div className="text-green-600 text-center py-4">{reviewSuccess}</div>
+            ) : (
+              <form onSubmit={handleReviewSubmit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className={`text-2xl transition-colors duration-200 ${star <= rating ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-300 hover:text-gray-400'}`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Komentar (Opsional)
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6d4c2c] border-gray-300 text-black"
+                    rows="3"
+                    placeholder="Bagikan pengalaman Anda..."
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReviewModalOpen(false);
+                      setError("");
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="px-4 py-2 bg-[#6d4c2c] text-white rounded-lg hover:bg-[#8b6d4c] transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {submittingReview ? "Menyimpan..." : "Kirim Ulasan"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

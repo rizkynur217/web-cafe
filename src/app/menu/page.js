@@ -174,9 +174,9 @@ function MenuPage() {
             Home
           </Link>
           <span className="text-gray-600 select-none">|</span>
-          <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+          <Link href="/reviews" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
             Reviews
-          </a>
+          </Link>
           <span className="text-gray-600 select-none">|</span>
           <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
             Contact
@@ -217,6 +217,7 @@ function MenuPage() {
                 <div className="font-bold text-lg mb-1 text-white">{item.name}</div>
                 <div className="text-gray-400 text-sm mb-2 min-h-[40px]">{item.description}</div>
                 <div className="font-bold text-base mb-2 text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
+
                 <div className="flex items-center justify-center gap-2 mt-4">
                   <button
                     className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition disabled:opacity-50"
