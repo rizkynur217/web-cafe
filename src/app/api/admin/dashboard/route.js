@@ -14,15 +14,26 @@ export async function GET(request) {
       );
     }
 
-    // Query statistik dari database
-    const totalPesanan = await prisma.order.count();
+    // Query statistik dari database menggunakan OrderItem
+    const totalItemsSold = await prisma.orderItem.aggregate({
+      _sum: {
+        quantity: true
+      }
+    });
+
+    const totalRevenueAgg = await prisma.orderItem.aggregate({
+      _sum: {
+        price: true
+      }
+    });
+
     const jumlahPengguna = await prisma.user.count();
     const jumlahMenu = await prisma.menuItem.count();
-    const totalRevenueAgg = await prisma.order.aggregate({ _sum: { totalPrice: true } });
-    const totalRevenue = totalRevenueAgg._sum.totalPrice || 0;
+    const totalPesanan = await prisma.order.count();
+    const totalRevenue = totalRevenueAgg._sum.price || 0;
 
     const stats = [
-      { label: "Total Pesanan", value: totalPesanan },
+      { label: "Total Item Terjual", value: totalItemsSold._sum.quantity || 0 },
       { label: "Jumlah Pengguna", value: jumlahPengguna },
       { label: "Jumlah Menu", value: jumlahMenu },
       { label: "Total Revenue", value: `Rp${totalRevenue.toLocaleString("id-ID")}` },
