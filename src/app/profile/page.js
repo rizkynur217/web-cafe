@@ -8,6 +8,7 @@ export default function ProfilePage() {
     username: "",
     email: "",
     phone: "",
+    role: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,6 +36,7 @@ export default function ProfilePage() {
             username: data.name || "",
             email: data.email || "",
             phone: data.phone || "",
+            role: data.role || "",
           });
         } else {
           const error = await profileRes.json();
@@ -54,6 +56,13 @@ export default function ProfilePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    
+    // Prevent admin from updating profile
+    if (profile.role === "ADMIN") {
+      setError("Admin tidak diperbolehkan mengubah profil");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setSuccess(false);
@@ -87,6 +96,7 @@ export default function ProfilePage() {
           username: data.name || "",
           email: data.email || "",
           phone: data.phone || "",
+          role: data.role || "",
         });
       }
     } catch (err) {
@@ -147,6 +157,11 @@ export default function ProfilePage() {
             Profile berhasil diperbarui!
           </div>
         )}
+        {profile.role === "ADMIN" && (
+          <div className="mb-6 p-4 bg-black text-white rounded-lg text-center">
+            Admin tidak diperbolehkan mengubah profil
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div>
             <label className="block font-semibold mb-1 text-black">Username</label>
@@ -157,6 +172,7 @@ export default function ProfilePage() {
               value={profile.username}
               onChange={(e) => setProfile({ ...profile, username: e.target.value })}
               required
+              disabled={profile.role === "ADMIN"}
             />
           </div>
           <div>
@@ -168,6 +184,7 @@ export default function ProfilePage() {
               value={profile.email}
               onChange={(e) => setProfile({ ...profile, email: e.target.value })}
               required
+              disabled={profile.role === "ADMIN"}
             />
           </div>
           <div>
@@ -179,19 +196,22 @@ export default function ProfilePage() {
               value={profile.phone}
               onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
               placeholder="Contoh: 081234567890"
+              disabled={profile.role === "ADMIN"}
             />
           </div>
           <div className="flex gap-4 mt-4">
             <Link href="/" className="flex-1 py-2 rounded bg-[#a89c8a] text-white font-semibold shadow hover:bg-[#6d4c2c] transition flex items-center justify-center gap-2">
               <span className="text-xl">↩️</span> Back
             </Link>
-            <button 
-              type="submit" 
-              className="flex-1 py-2 rounded bg-black text-white font-semibold shadow hover:bg-gray-800 transition disabled:opacity-50"
-              disabled={saving}
-            >
-              {saving ? "Menyimpan..." : "Simpan Perubahan"}
-            </button>
+            {profile.role !== "ADMIN" && (
+              <button 
+                type="submit" 
+                className="flex-1 py-2 rounded bg-black text-white font-semibold shadow hover:bg-gray-800 transition disabled:opacity-50"
+                disabled={saving || profile.role === "ADMIN"}
+              >
+                {saving ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+            )}
           </div>
         </form>
       </main>

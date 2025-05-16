@@ -13,9 +13,10 @@ export async function GET(request, { params }) {
         );
       }
 
-      const id = parseInt(params.id);
+      const { id } = params;
+      const userId = parseInt(id);
       
-      if (isNaN(id)) {
+      if (isNaN(userId)) {
         return NextResponse.json(
           { error: 'Invalid ID format' },
           { status: 400 }
@@ -23,7 +24,7 @@ export async function GET(request, { params }) {
       }
 
       // Only allow users to view their own profile or admin to view any profile
-      if (session.user.id !== id && session.user.role !== 'ADMIN') {
+      if (session.user.id !== userId && session.user.role !== 'ADMIN') {
         return NextResponse.json(
           { error: 'Not authorized to view this profile' },
           { status: 403 }
@@ -31,7 +32,7 @@ export async function GET(request, { params }) {
       }
       
       const user = await prisma.user.findUnique({
-        where: { id },
+        where: { id: userId },
         select: {
           id: true,
           name: true,
@@ -70,8 +71,10 @@ export async function PUT(request, { params }) {
           );
         }
 
-        const id = parseInt(params.id);
-        if (isNaN(id)) {
+        const { id } = params;
+        const userId = parseInt(id);
+        
+        if (isNaN(userId)) {
             return NextResponse.json(
                 { error: 'Invalid ID format' },
                 { status: 400 }
@@ -79,7 +82,7 @@ export async function PUT(request, { params }) {
         }
 
         // Only allow users to update their own profile or admin to update any profile
-        if (session.user.id !== id && session.user.role !== 'ADMIN') {
+        if (session.user.id !== userId && session.user.role !== 'ADMIN') {
           return NextResponse.json(
             { error: 'Not authorized to update this profile' },
             { status: 403 }
@@ -90,7 +93,7 @@ export async function PUT(request, { params }) {
 
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
-            where: { id }
+            where: { id: userId }
         });
 
         if (!existingUser) {
@@ -122,7 +125,7 @@ export async function PUT(request, { params }) {
 
         // Update user
         const updatedUser = await prisma.user.update({
-            where: { id },
+            where: { id: userId },
             data: updateData,
             select: {
                 id: true,
@@ -163,8 +166,10 @@ export async function DELETE(request, { params }) {
           );
         }
 
-        const id = parseInt(params.id);
-        if (isNaN(id)) {
+        const { id } = params;
+        const userId = parseInt(id);
+        
+        if (isNaN(userId)) {
           return NextResponse.json(
             { error: 'Invalid ID format' },
             { status: 400 }
@@ -172,7 +177,7 @@ export async function DELETE(request, { params }) {
         }
 
         const deletedUser = await prisma.user.delete({
-            where: { id }
+            where: { id: userId }
         });
         return NextResponse.json(deletedUser);
     } catch (error) {
