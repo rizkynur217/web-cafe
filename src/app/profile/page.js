@@ -2,10 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
   const [profile, setProfile] = useState({
     username: "",
     email: "",
@@ -18,60 +16,64 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-
-    if (status === "authenticated" && session?.user?.id) {
-      async function fetchProfile() {
-        try {
-          const res = await fetch(`/api/users/${session.user.id}`);
-          if (res.ok) {
-            const data = await res.json();
-            setProfile({
-              username: data.name || "",
-              email: data.email || "",
-              phone: data.phone || "",
-            });
-          } else {
-            const error = await res.json();
-            setError(error.error || "Failed to load profile");
-            console.error("Failed to load profile:", error);
-          }
-        } catch (e) {
-          setError("Failed to load profile");
-          console.error("Error loading profile:", e);
-        } finally {
-          setLoading(false);
+    async function checkAuthAndLoadProfile() {
+      try {
+        // Check authentication
+        const authRes = await fetch('/api/auth/me');
+        if (!authRes.ok) {
+          router.push('/login');
+          return;
         }
-      }
-      fetchProfile();
-    }
-  }, [status, session, router]);
 
-  function handleChange(e) {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-    setError("");
-    setSuccess(false);
-  }
+        const userData = await authRes.json();
+        
+        // Load profile data
+        const profileRes = await fetch(`/api/users/${userData.id}`);
+        if (profileRes.ok) {
+          const data = await profileRes.json();
+          setProfile({
+            username: data.name || "",
+            email: data.email || "",
+            phone: data.phone || "",
+          });
+        } else {
+          const error = await profileRes.json();
+          setError(error.error || "Failed to load profile");
+          console.error("Failed to load profile:", error);
+        }
+      } catch (e) {
+        console.error("Error:", e);
+        setError("Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAuthAndLoadProfile();
+  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!session?.user?.id) return;
-    
     setSaving(true);
     setError("");
     setSuccess(false);
 
     try {
-      const res = await fetch(`/api/users/${session.user.id}`, {
+      // Get current user ID
+      const authRes = await fetch('/api/auth/me');
+      if (!authRes.ok) {
+        throw new Error('Not authenticated');
+      }
+      const userData = await authRes.json();
+
+      // Update profile
+      const res = await fetch(`/api/users/${userData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: profile.username || "",
-          email: profile.email || "",
-          phone: profile.phone || null,
+          name: profile.username,
+          email: profile.email,
+          phone: profile.phone,
         }),
       });
 
@@ -95,7 +97,18 @@ export default function ProfilePage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST'
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  }
+
+  if (loading) {
     return <div className="p-8 text-center text-black">Loading...</div>;
   }
 
@@ -113,7 +126,7 @@ export default function ProfilePage() {
         </div>
         <div className="mt-auto px-6 py-3">
           <button 
-            onClick={() => signOut()}
+            onClick={handleLogout}
             className="flex items-center gap-2 text-lg text-[#6d4c2c] hover:underline"
           >
             <span className="text-2xl">↩️</span> Log Out
@@ -122,7 +135,7 @@ export default function ProfilePage() {
       </aside>
 
       {/* Main Content */}
-      <main className="bg-white rounded-xl shadow p-10 w-full max-w-xl">
+      <main className="flex-1 max-w-xl bg-white rounded-xl shadow p-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-black">Profile Info</h1>
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
@@ -142,7 +155,7 @@ export default function ProfilePage() {
               name="username"
               className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
               value={profile.username}
-              onChange={handleChange}
+              onChange={(e) => setProfile({ ...profile, username: e.target.value })}
               required
             />
           </div>
@@ -153,7 +166,7 @@ export default function ProfilePage() {
               name="email"
               className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
               value={profile.email}
-              onChange={handleChange}
+              onChange={(e) => setProfile({ ...profile, email: e.target.value })}
               required
             />
           </div>
@@ -164,7 +177,7 @@ export default function ProfilePage() {
               name="phone"
               className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
               value={profile.phone}
-              onChange={handleChange}
+              onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
               placeholder="Contoh: 081234567890"
             />
           </div>
@@ -175,7 +188,7 @@ export default function ProfilePage() {
             <button 
               type="submit" 
               className="flex-1 py-2 rounded bg-black text-white font-semibold shadow hover:bg-gray-800 transition disabled:opacity-50"
-              disabled={saving || status !== "authenticated"}
+              disabled={saving}
             >
               {saving ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
