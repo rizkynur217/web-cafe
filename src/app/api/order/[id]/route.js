@@ -126,6 +126,13 @@ export async function PUT(request, { params }) {
       );
     }
 
+    // If status is CANCELLED, delete all order items first
+    if (status === 'CANCELLED') {
+      await prisma.orderItem.deleteMany({
+        where: { orderId }
+      });
+    }
+
     // Update the order
     const updatedOrder = await prisma.order.update({
       where: {
