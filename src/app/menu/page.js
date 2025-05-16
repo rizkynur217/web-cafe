@@ -13,7 +13,7 @@ const categories = [
   { label: "Dessert", value: "DESERT" },
 ];
 
-export default function MenuPage() {
+function MenuPage() {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("ALL");
@@ -73,7 +73,7 @@ export default function MenuPage() {
         setTimeout(() => {
           setError("");
         }, 300); // Wait for fade out animation before clearing error
-      }, 6000);
+      }, 6000); // Changed to exactly 6 seconds
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
@@ -99,7 +99,7 @@ export default function MenuPage() {
     }
 
     if (isAdmin) {
-      setError("Admin tidak diperbolehkan membuat pesanan");
+      setError("Admin tidak diperbolehkan melakukan pemesanan");
       return;
     }
 
@@ -116,7 +116,7 @@ export default function MenuPage() {
   // Kurangi dari keranjang
   function removeFromCart(item) {
     if (isAdmin) {
-      setError("Admin tidak diperbolehkan membuat pesanan");
+      setError("Admin tidak diperbolehkan melakukan pemesanan");
       return;
     }
 
@@ -157,7 +157,9 @@ export default function MenuPage() {
     <div className="min-h-screen bg-[#fafafa] pb-32">
       {/* Error Message */}
       {error && (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-black/90 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ${showError ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-8 py-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+          showError ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+        }`}>
           {error}
         </div>
       )}
@@ -254,4 +256,6 @@ export default function MenuPage() {
       )}
     </div>
   );
-} 
+}
+
+export default MenuPage; 

@@ -35,21 +35,23 @@ export default function AdminDashboard() {
   // Handle status change
   async function handleStatusChange(orderId, newStatus) {
     try {
-      const res = await fetch('/api/order-status', {
-        method: 'POST',
+      const res = await fetch(`/api/order/${orderId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderId, status: newStatus }),
+        body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!res.ok) throw new Error('Failed to update status');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to update status');
+      }
 
-      // Remove order from list if status is COMPLETED or CANCELLED
+      // Update orders list with new status
       if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
         setOrders(orders.filter(order => order.id !== orderId));
       } else {
-        // Update orders list with new status
         setOrders(orders.map(order => 
           order.id === orderId 
             ? { ...order, status: newStatus }
@@ -58,7 +60,7 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      alert(error.message || 'Failed to update order status');
     }
   }
 

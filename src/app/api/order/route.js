@@ -21,12 +21,12 @@ export async function POST(request) {
       console.log('User ID:', userId);
       
       const data = await request.json();
-      console.log('Request body:', JSON.stringify(data));
+      console.log('Request body:', data);
       
-      const { items, totalPrice, notes, paymentMethod } = data;
+      const { items, notes, paymentMethod } = data;
   
       // Validate request body
-      if (!userId || !Array.isArray(items) || items.length === 0) {
+      if (!Array.isArray(items) || items.length === 0) {
         console.log('Missing or invalid items array');
         return NextResponse.json(
           { error: 'Data pesanan tidak lengkap' },
@@ -35,7 +35,7 @@ export async function POST(request) {
       }
   
       // Extract menu item IDs to fetch their prices
-      const menuItemIds = items.map(item => item.id);
+      const menuItemIds = items.map(item => Number(item.id));
       console.log('Menu item IDs:', menuItemIds);
   
       // Fetch menu items to get their prices
@@ -47,93 +47,102 @@ export async function POST(request) {
         },
       });
       
-      console.log('Menu items found:', menuItems.length);
+      console.log('Menu items found:', menuItems);
       
       if (menuItems.length === 0) {
         console.log('No menu items found');
         return NextResponse.json(
-          { error: 'No valid menu items found' },
+          { error: 'Menu items tidak ditemukan' },
           { status: 400 }
         );
       }
   
       // Calculate order total and create items array
-      let total = 0;
+      let totalPrice = 0;
       const orderItems = [];
   
       for (const item of items) {
-        const menuItem = menuItems.find(mi => mi.id === item.id);
+        const menuItem = menuItems.find(mi => mi.id === Number(item.id));
         
         if (!menuItem) {
           console.log(`Menu item with ID ${item.id} not found`);
           return NextResponse.json(
-            { error: `Menu item with ID ${item.id} not found` },
+            { error: `Menu item dengan ID ${item.id} tidak ditemukan` },
             { status: 400 }
           );
         }
   
-        const quantity = item.qty || 1;
-        const subtotal = menuItem.price * quantity;
-        
-        total += subtotal;
+        const quantity = Number(item.qty) || 1;
+        const price = menuItem.price;
+        totalPrice += price * quantity;
         
         orderItems.push({
           menuItemId: menuItem.id,
           quantity: quantity,
-          price: menuItem.price,
+          price: price,
         });
       }
       
       console.log('Order items to create:', orderItems);
-      console.log('Order total:', total);
+      console.log('Total price:', totalPrice);
+
+      // Log the exact data we're sending to Prisma
+      const orderData = {
+        data: {
+          userId: userId,
+          totalPrice: totalPrice,
+          status: 'PENDING',
+          notes: notes || null,
+          paymentMethod: paymentMethod || null,
+          items: {
+            create: orderItems
+          }
+        },
+        include: {
+          items: {
+            include: {
+              menuItem: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        }
+      };
+      console.log('Creating order with data:', JSON.stringify(orderData, null, 2));
   
       try {
         // Create the order in the database
-        const order = await prisma.order.create({
-          data: {
-            userId: Number(userId),
-            totalPrice: Number(total),
-            notes: notes || null,
-            paymentMethod: paymentMethod || null,
-            status: 'PENDING',
-            items: {
-              create: orderItems.map(item => ({
-                menuItemId: Number(item.menuItemId),
-                quantity: Number(item.quantity),
-                price: Number(item.price),
-              })),
-            },
-          },
-          include: {
-            items: {
-              include: {
-                menuItem: true,
-              },
-            },
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        });
+        const order = await prisma.order.create(orderData);
         
         console.log('Order created successfully, order ID:', order.id);
         return NextResponse.json(order, { status: 201 });
       } catch (dbError) {
-        console.error('Database error creating order:', dbError, orderItems);
+        // Log the full error details
+        console.error('Database error creating order:', {
+          error: dbError,
+          message: dbError.message,
+          code: dbError.code,
+          meta: dbError.meta
+        });
         return NextResponse.json(
-          { error: 'Database error: ' + dbError.message, orderItems },
+          { error: 'Gagal membuat pesanan: ' + dbError.message },
           { status: 500 }
         );
       }
   
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Error creating order:', {
+        error: error,
+        message: error.message,
+        stack: error.stack
+      });
       return NextResponse.json(
-        { error: 'Failed to create order: ' + error.message },
+        { error: 'Gagal membuat pesanan: ' + error.message },
         { status: 500 }
       );
     }
