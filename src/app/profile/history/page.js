@@ -342,9 +342,9 @@ export default function HistoryPage() {
                             order.status === 'COMPLETED' && (
                               <button
                                 onClick={() => openReviewModal(item, order)}
-                                className="mt-2 px-4 py-1 bg-[#6d4c2c] text-white rounded-full text-sm hover:bg-[#8b6d4c] transition-colors duration-200 flex items-center gap-2"
+                                className="mt-2 px-3 py-1 bg-[#6d4c2c] text-white rounded-full text-xs sm:text-sm hover:bg-[#8b6d4c] transition-colors duration-200 flex items-center gap-1"
                               >
-                                <span>⭐</span>
+                                <span className="text-xs">⭐</span>
                                 Beri Ulasan
                               </button>
                             )

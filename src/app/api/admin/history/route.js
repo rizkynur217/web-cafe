@@ -19,6 +19,9 @@ export async function GET(request) {
       where: {
         status: {
           in: ['COMPLETED', 'CANCELLED']
+        },
+        user: {
+          role: 'CUSTOMER'
         }
       },
       orderBy: { 
