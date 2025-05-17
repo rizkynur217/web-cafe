@@ -47,12 +47,25 @@ function MenuPage() {
           const data = await res.json();
           setIsAuthenticated(true);
           setIsAdmin(data.role === "ADMIN");
-          // Restore pending cart if exists and not admin
+          
           if (typeof window !== "undefined" && data.role !== "ADMIN") {
-            const pendingCart = localStorage.getItem("pendingCart");
-            if (pendingCart) {
-              setCart(JSON.parse(pendingCart));
-              localStorage.removeItem("pendingCart");
+            // Check if we're coming from edit
+            const isEditing = localStorage.getItem("isEditing");
+            if (isEditing) {
+              // Restore cart state
+              const cartData = localStorage.getItem("cart");
+              if (cartData) {
+                setCart(JSON.parse(cartData));
+              }
+              // Clear the editing flag
+              localStorage.removeItem("isEditing");
+            } else {
+              // Normal flow - check for pending cart
+              const pendingCart = localStorage.getItem("pendingCart");
+              if (pendingCart) {
+                setCart(JSON.parse(pendingCart));
+                localStorage.removeItem("pendingCart");
+              }
             }
           }
         }
@@ -176,6 +189,10 @@ function MenuPage() {
           <span className="text-gray-600 select-none">|</span>
           <Link href="/reviews" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
             Reviews
+          </Link>
+          <span className="text-gray-600 select-none">|</span>
+          <Link href="/profile/history" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+            Order
           </Link>
           <span className="text-gray-600 select-none">|</span>
           <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
