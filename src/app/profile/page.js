@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -124,14 +125,76 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f4] flex items-center justify-center">
-      {/* Sidebar */}
-      <aside className="w-56 bg-white rounded-xl shadow flex flex-col py-6 mr-8">
+      {/* Mobile Navigation */}
+      <div className="fixed top-0 left-0 right-0 bg-white p-4 flex items-center justify-between md:hidden z-50">
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          className="text-2xl text-[#6d4c2c]"
+        >
+          ☰
+        </button>
+        <h1 className="text-xl font-bold text-[#6d4c2c]">Profile Info</h1>
+        {profile.username ? (
+          <Link href="/profile" className="w-8 h-8 rounded-full bg-[#6d4c2c] text-white flex items-center justify-center font-semibold text-sm">
+            {profile.username.split(' ').map(word => word[0]).join('').toUpperCase()}
+          </Link>
+        ) : (
+          <Link href="/login" className="text-[#6d4c2c]">
+            👤
+          </Link>
+        )}
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isMenuOpen && (
+        <div className="fixed top-16 left-0 right-0 bg-white shadow-lg z-40 md:hidden">
+          <Link 
+            href="/profile" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition text-[#6d4c2c] font-bold bg-[#f7f5f2]"
+          >
+            <span className="text-2xl">👤</span> Profile
+          </Link>
+          <Link 
+            href="/profile/history" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">🕒</span> History Order
+          </Link>
+          <Link 
+            href="/menu" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">📋</span> Menu
+          </Link>
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">🏠</span> Home
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition text-red-600"
+          >
+            <span className="text-2xl">↩️</span> Logout
+          </button>
+        </div>
+      )}
+
+      {/* Desktop Sidebar - Hide on mobile */}
+      <aside className="hidden md:flex w-56 bg-white rounded-xl shadow flex-col py-6 mr-8">
         <div>
           <div className="flex items-center gap-2 px-6 py-3 font-bold text-lg text-[#6d4c2c] bg-[#f7f5f2] rounded-t-xl">
             <span className="text-2xl">👤</span> Profile
           </div>
           <Link href="/profile/history" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
             <span className="text-2xl">🕒</span> History Order
+          </Link>
+          <Link href="/menu" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
+            <span className="text-2xl">📋</span> Menu
+          </Link>
+          <Link href="/" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
+            <span className="text-2xl">🏠</span> Home
           </Link>
         </div>
         <div className="mt-auto px-6 py-3">
@@ -144,8 +207,8 @@ export default function ProfilePage() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-xl bg-white rounded-xl shadow p-8">
+      {/* Main Content - Add padding top for mobile */}
+      <main className="flex-1 max-w-xl bg-white rounded-xl shadow p-8 mt-20 md:mt-0">
         <h1 className="text-3xl font-bold text-center mb-8 text-black">Profile Info</h1>
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">

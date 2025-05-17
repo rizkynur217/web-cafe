@@ -14,10 +14,12 @@ export default function HistoryPage() {
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    async function loadOrders() {
+    async function loadData() {
       try {
         // Check authentication first
         const authRes = await fetch('/api/auth/me');
@@ -27,6 +29,7 @@ export default function HistoryPage() {
         }
 
         const userData = await authRes.json();
+        setUserData(userData);
         
         // Load orders for the user
         const ordersRes = await fetch(`/api/order/user/${userData.id}`);
@@ -63,7 +66,7 @@ export default function HistoryPage() {
       }
     }
 
-    loadOrders();
+    loadData();
   }, [router]);
 
   // Function to format date
@@ -170,14 +173,93 @@ export default function HistoryPage() {
     setReviewModalOpen(true);
   };
 
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST'
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  }
+
+  // Get user initials
+  const getUserInitials = (name) => {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase();
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-black">Loading...</div>;
   }
 
   return (
     <div className="min-h-screen bg-[#f4f4f4] flex items-start justify-center p-8">
-      {/* Sidebar */}
-      <aside className="w-56 bg-white rounded-xl shadow flex flex-col py-6 mr-8 sticky top-8">
+      {/* Mobile Navigation */}
+      <div className="fixed top-0 left-0 right-0 bg-white p-4 flex items-center justify-between md:hidden z-50">
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          className="text-2xl text-[#6d4c2c]"
+        >
+          ☰
+        </button>
+        <h1 className="text-xl font-bold text-[#6d4c2c]">History Pesanan</h1>
+        {userData ? (
+          <Link href="/profile" className="w-8 h-8 rounded-full bg-[#6d4c2c] text-white flex items-center justify-center font-semibold text-sm">
+            {getUserInitials(userData.name)}
+          </Link>
+        ) : (
+          <Link href="/login" className="text-[#6d4c2c]">
+            👤
+          </Link>
+        )}
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isMenuOpen && (
+        <div className="fixed top-16 left-0 right-0 bg-white shadow-lg z-40 md:hidden">
+          <Link 
+            href="/profile" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">👤</span> Profile
+          </Link>
+          <Link 
+            href="/profile/history" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition text-[#6d4c2c] font-bold bg-[#f7f5f2]"
+          >
+            <span className="text-2xl">🕒</span> History Order
+          </Link>
+          <Link 
+            href="/menu" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">📋</span> Menu
+          </Link>
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition"
+          >
+            <span className="text-2xl">🏠</span> Home
+          </Link>
+          {userData && (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition text-red-600"
+            >
+              <span className="text-2xl">↩️</span> Logout
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Sidebar - Hide on mobile */}
+      <aside className="hidden md:flex w-56 bg-white rounded-xl shadow flex flex-col py-6 mr-8 sticky top-8">
         <div>
           <Link href="/profile" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
             <span className="text-2xl">👤</span> Profile
@@ -195,7 +277,7 @@ export default function HistoryPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl">
+      <main className="flex-1 max-w-4xl mt-20 md:mt-0">
         <h1 className="text-3xl font-bold mb-8 text-black">History Pesanan</h1>
         
         {error && (
