@@ -47,12 +47,25 @@ function MenuPage() {
           const data = await res.json();
           setIsAuthenticated(true);
           setIsAdmin(data.role === "ADMIN");
-          // Restore pending cart if exists and not admin
+          
           if (typeof window !== "undefined" && data.role !== "ADMIN") {
-            const pendingCart = localStorage.getItem("pendingCart");
-            if (pendingCart) {
-              setCart(JSON.parse(pendingCart));
-              localStorage.removeItem("pendingCart");
+            // Check if we're coming from edit
+            const isEditing = localStorage.getItem("isEditing");
+            if (isEditing) {
+              // Restore cart state
+              const cartData = localStorage.getItem("cart");
+              if (cartData) {
+                setCart(JSON.parse(cartData));
+              }
+              // Clear the editing flag
+              localStorage.removeItem("isEditing");
+            } else {
+              // Normal flow - check for pending cart
+              const pendingCart = localStorage.getItem("pendingCart");
+              if (pendingCart) {
+                setCart(JSON.parse(pendingCart));
+                localStorage.removeItem("pendingCart");
+              }
             }
           }
         }

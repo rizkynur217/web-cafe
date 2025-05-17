@@ -51,7 +51,13 @@ export default function CheckoutPage() {
   }
 
   function handleEdit() {
-    router.back();
+    // Ensure cart state is preserved in localStorage before navigation
+    if (cart.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+      // Also set a flag to indicate we're coming from edit
+      localStorage.setItem("isEditing", "true");
+    }
+    router.push("/menu");
   }
 
   return (
