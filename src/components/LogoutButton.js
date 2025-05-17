@@ -5,8 +5,16 @@ export default function LogoutButton({ className }) {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/");
+    try {
+      const response = await fetch("/api/auth/logout", { 
+        method: "POST",
+        redirect: 'manual'
+      });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      window.location.href = '/';
+    }
   }
 
   return (

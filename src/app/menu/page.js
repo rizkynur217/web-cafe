@@ -178,6 +178,10 @@ function MenuPage() {
             Reviews
           </Link>
           <span className="text-gray-600 select-none">|</span>
+          <Link href="/profile/history" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
+            Order
+          </Link>
+          <span className="text-gray-600 select-none">|</span>
           <a href="#" className="text-white hover:text-gray-300 transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-0 after:bg-white hover:after:w-full after:transition-all">
             Contact
           </a>

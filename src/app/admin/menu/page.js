@@ -202,22 +202,20 @@ export default function AdminMenuPage() {
                     <div className="font-bold text-lg mb-3 text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
                   </div>
                 </div>
-                <div className="flex justify-center gap-6 pt-3 border-t border-white/10">
+                <div className="flex gap-2 justify-center mt-4">
                   <button 
-                    className="text-2xl hover:text-yellow-400 transition-colors" 
-                    title="Edit" 
+                    className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 ease-in-out" 
                     onClick={() => handleEdit(item)} 
                     type="button"
                   >
-                    <span role="img" aria-label="edit">✏️</span>
+                    Edit
                   </button>
                   <button 
-                    className="text-2xl hover:text-red-400 transition-colors" 
-                    title="Delete" 
+                    className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 ease-in-out" 
                     onClick={() => handleDelete(item)} 
                     type="button"
                   >
-                    <span role="img" aria-label="hapus">🗑️</span>
+                    Delete
                   </button>
                 </div>
               </div>

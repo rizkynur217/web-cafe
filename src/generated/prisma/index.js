@@ -195,7 +195,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\ASUS\\code\\1\\2\\web-cafe\\src\\generated\\prisma",
+      "value": "C:\\inifix\\web-cafe\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -209,7 +209,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\ASUS\\code\\1\\2\\web-cafe\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\inifix\\web-cafe\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -227,7 +227,7 @@ const config = {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:123@localhost:5432/project-saas?schema=public"
+        "value": "postgresql://postgres:12345678@localhost:5432/web-cafe"
       }
     }
   },

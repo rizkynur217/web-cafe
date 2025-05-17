@@ -185,9 +185,10 @@ export default function HistoryPage() {
           <div className="flex items-center gap-2 px-6 py-3 font-bold text-lg text-[#6d4c2c] bg-[#f7f5f2]">
             <span className="text-2xl">🕒</span> History Order
           </div>
-        </div>
-        <div className="mt-auto px-6 py-3">
-          <Link href="/" className="flex items-center gap-2 text-lg text-[#6d4c2c] hover:underline">
+          <Link href="/menu" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
+            <span className="text-2xl">📋</span> Menu
+          </Link>
+          <Link href="/" className="flex items-center gap-2 px-6 py-3 text-lg hover:bg-[#f7f5f2] transition">
             <span className="text-2xl">🏠</span> Home
           </Link>
         </div>
