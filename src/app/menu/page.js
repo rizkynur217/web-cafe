@@ -202,43 +202,56 @@ function MenuPage() {
         ))}
       </div>
       {/* Grid Menu */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 max-w-7xl mx-auto mb-16 px-4 sm:px-8">
         {filteredMenus.length === 0 && (
           <div className="col-span-full text-center text-gray-400 text-xl py-16">Tidak ada menu tersedia</div>
         )}
         {filteredMenus.map((item) => {
           const qty = getQty(item.id);
           return (
-            <div key={item.id} className="bg-black rounded-xl shadow-lg p-4 flex flex-col items-center">
-              <div className="w-28 h-36 mb-4 relative">
-                <Image src={item.imageUrl || "/coffee-cup.png"} alt={item.name} fill style={{ objectFit: "contain" }} />
-              </div>
-              <div className="w-full">
-                <div className="font-bold text-lg mb-1 text-white">{item.name}</div>
-                <div className="text-gray-400 text-sm mb-2 min-h-[40px]">{item.description}</div>
-                <div className="font-bold text-base mb-2 text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
+            <div key={item.id} className="bg-black rounded-xl shadow-lg p-5 flex items-center min-h-[160px]">
+              {/* Content wrapper - horizontal layout for both mobile and desktop */}
+              <div className="flex-1 flex items-center gap-4">
+                {/* Text content - left side */}
+                <div className="flex-1">
+                  <div className="font-bold text-lg sm:text-xl mb-2 text-white">{item.name}</div>
+                  <div className="text-gray-400 text-sm mb-3 line-clamp-2">{item.description}</div>
+                  <div className="font-bold text-base sm:text-lg text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
+                </div>
 
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  <button
-                    className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition disabled:opacity-50"
-                    onClick={() => removeFromCart(item)}
-                    aria-label="Kurangi dari keranjang"
-                    type="button"
-                    disabled={qty === 0}
-                  >
-                    -
-                  </button>
-                  {qty > 0 && (
-                    <span className="font-bold text-lg w-6 text-center text-white">{qty}</span>
-                  )}
-                  <button
-                    className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition"
-                    onClick={() => addToCart(item)}
-                    aria-label="Tambah ke keranjang"
-                    type="button"
-                  >
-                    +
-                  </button>
+                {/* Image and buttons - right side */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 relative rounded-xl overflow-hidden bg-white/10">
+                    <Image 
+                      src={item.imageUrl || "/coffee-cup.png"} 
+                      alt={item.name} 
+                      fill 
+                      style={{ objectFit: "cover" }} 
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-3 bg-white/10 rounded-full p-1">
+                    <button
+                      className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition disabled:opacity-50"
+                      onClick={() => removeFromCart(item)}
+                      aria-label="Kurangi dari keranjang"
+                      type="button"
+                      disabled={qty === 0}
+                    >
+                      -
+                    </button>
+                    {qty > 0 && (
+                      <span className="font-bold text-lg w-6 text-center text-white">{qty}</span>
+                    )}
+                    <button
+                      className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xl font-bold shadow hover:bg-gray-200 transition"
+                      onClick={() => addToCart(item)}
+                      aria-label="Tambah ke keranjang"
+                      type="button"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

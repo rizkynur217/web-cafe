@@ -40,7 +40,7 @@ export default function CheckoutPage() {
       });
       if (res.ok) {
         localStorage.removeItem("cart");
-        window.location.href = "/menu";
+        window.location.href = "/profile/history";
       } else {
         const err = await res.json();
         alert("Gagal membuat pesanan: " + (err.error || "Unknown error"));
