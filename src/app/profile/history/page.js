@@ -274,6 +274,16 @@ export default function HistoryPage() {
             <span className="text-2xl">🏠</span> Home
           </Link>
         </div>
+        {userData && (
+          <div className="mt-auto px-6 py-3">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-lg text-[#6d4c2c] hover:underline"
+            >
+              <span className="text-2xl">↩️</span> Log Out
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}

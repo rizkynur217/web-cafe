@@ -281,9 +281,11 @@ function MenuPage() {
         <div className="flex-1 flex justify-end">
           {userData ? (
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-[#6d4c2c] text-white flex items-center justify-center font-semibold">
-                {getUserInitials(userData.name)}
-              </div>
+              <Link href="/profile">
+                <div className="w-10 h-10 rounded-full bg-[#6d4c2c] text-white flex items-center justify-center font-semibold cursor-pointer hover:opacity-80 transition">
+                  {getUserInitials(userData.name)}
+                </div>
+              </Link>
             </div>
           ) : (
             <Link 

@@ -11,14 +11,6 @@ export default async function Home() {
       {/* Background image with overlay */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-black/75 z-10"></div>
-        <Image
-          src="https://source.unsplash.com/1920x1080/?coffee-shop-dark"
-          alt="Coffee Shop Background"
-          fill
-          style={{ objectFit: "cover" }}
-          className="grayscale"
-          priority
-        />
       </div>
 
       {/* Top navigation */}
