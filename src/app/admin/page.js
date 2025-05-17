@@ -15,6 +15,20 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState([]);
   const [orders, setOrders] = useState([]);
 
+  // Add logout handler
+  async function handleLogout() {
+    try {
+      const res = await fetch('/api/auth/logout', {
+        method: 'POST'
+      });
+      if (res.ok) {
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  }
+
   useEffect(() => {
     // Fetch dashboard data
     fetch('/api/admin/dashboard')
@@ -77,11 +91,12 @@ export default function AdminDashboard() {
           </nav>
         </div>
         <div className="mt-auto w-full px-6">
-          <form action="/api/auth/logout" method="POST">
-            <button type="submit" className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium">
-              Logout
-            </button>
-          </form>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium"
+          >
+            Logout
+          </button>
         </div>
       </aside>
 
