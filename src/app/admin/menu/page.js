@@ -146,16 +146,21 @@ export default function AdminMenuPage() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
-      <aside className="fixed top-0 left-0 h-screen w-56 bg-black text-white flex flex-col items-center py-8 rounded-r-3xl z-20">
+      <aside className="fixed top-0 left-0 h-screen w-56 bg-[#1C1C1C] text-white flex flex-col items-center py-8 rounded-r-3xl">
         <div className="mb-12 w-full">
           <div className="text-2xl font-bold text-center mb-8">Dashboard</div>
           <nav className="flex flex-col gap-4 px-6">
             <Link href="/admin" className="py-2 px-4 rounded-lg hover:bg-gray-800 transition text-lg font-medium">Dashboard</Link>
             <Link href="/admin/menu" className="py-2 px-4 rounded-lg bg-gray-800 text-white text-lg font-medium">Menu</Link>
+            <Link href="/admin/history" className="py-2 px-4 rounded-lg hover:bg-gray-800 transition text-lg font-medium">History</Link>
           </nav>
         </div>
         <div className="mt-auto w-full px-6">
-          <LogoutButton className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium" />
+          <form action="/api/auth/logout" method="POST">
+            <button type="submit" className="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium">
+              Logout
+            </button>
+          </form>
         </div>
       </aside>
       {/* Main Content */}

@@ -73,6 +73,7 @@ export default function AdminDashboard() {
           <nav className="flex flex-col gap-4 px-6">
             <Link href="/admin" className="py-2 px-4 rounded-lg bg-gray-800 text-white text-lg font-medium">Dashboard</Link>
             <Link href="/admin/menu" className="py-2 px-4 rounded-lg hover:bg-gray-800 transition text-lg font-medium">Menu</Link>
+            <Link href="/admin/history" className="py-2 px-4 rounded-lg hover:bg-gray-800 transition text-lg font-medium">History</Link>
           </nav>
         </div>
         <div className="mt-auto w-full px-6">
@@ -89,6 +90,13 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-black">Dashboard Admin</h1>
+          <Link 
+            href="/admin/history" 
+            className="bg-[#1C1C1C] text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition flex items-center gap-2"
+          >
+            <span>Lihat History</span>
+            <span>→</span>
+          </Link>
         </div>
 
         {/* Card statistik */}
