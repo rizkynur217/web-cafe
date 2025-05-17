@@ -11,6 +11,9 @@ const STATUS_LABEL = {
 export default function AdminHistory() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Add logout handler
   async function handleLogout() {
@@ -50,11 +53,48 @@ export default function AdminHistory() {
   function formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString("id-ID", {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).replace(/\//g, '/');
   }
+
+  // Helper untuk format tanggal ke YYYY-MM-DD untuk input date
+  function formatDateForInput(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
+  }
+
+  // Helper untuk parse tanggal dari format dd/mm/yyyy
+  function parseDateString(dateString) {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split('-');
+    return new Date(year, month - 1, day);
+  }
+
+  // Filter orders berdasarkan pencarian dan tanggal
+  const filteredOrders = orders.filter(order => {
+    const orderDate = new Date(order.createdAt);
+    const formattedOrderDate = formatDateForInput(orderDate);
+    
+    // Filter berdasarkan nama/email pemesan
+    const searchMatch = !searchQuery || 
+      (order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Filter berdasarkan tanggal
+    const startDateObj = parseDateString(startDate);
+    const endDateObj = parseDateString(endDate);
+    const orderDateOnly = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+
+    const dateMatch = (!startDateObj || orderDateOnly >= startDateObj) &&
+                     (!endDateObj || orderDateOnly <= endDateObj);
+
+    return searchMatch && dateMatch;
+  });
 
   if (loading) {
     return (
@@ -118,6 +158,42 @@ export default function AdminHistory() {
           <h1 className="text-3xl font-bold text-black">History Pesanan</h1>
         </div>
 
+        {/* Search and Filter Section */}
+        <div className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 text-white mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search Input */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Cari Pemesan</label>
+              <input
+                type="text"
+                placeholder="Cari nama atau email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            {/* Date Range Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Tanggal Mulai</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Tanggal Akhir</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Tabel history pesanan */}
         <div className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 text-white">
           <div className="text-xl font-semibold mb-4">Riwayat Pesanan Selesai & Dibatalkan</div>
@@ -136,7 +212,7 @@ export default function AdminHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order, i) => (
+                  {filteredOrders.map((order, i) => (
                     <tr key={order.id} className="border-b border-gray-700 hover:bg-gray-800/50">
                       <td className="px-4 py-3">{String(i + 1).padStart(2, "0")}</td>
                       <td className="px-4 py-3">{order.user?.name || order.user?.email || '-'}</td>
@@ -151,10 +227,10 @@ export default function AdminHistory() {
                       </td>
                     </tr>
                   ))}
-                  {orders.length === 0 && (
+                  {filteredOrders.length === 0 && (
                     <tr>
                       <td colSpan="7" className="px-4 py-8 text-center text-gray-400">
-                        Belum ada riwayat pesanan
+                        {searchQuery || startDate || endDate ? 'Tidak ada pesanan yang sesuai dengan filter' : 'Belum ada riwayat pesanan'}
                       </td>
                     </tr>
                   )}

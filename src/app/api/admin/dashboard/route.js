@@ -34,7 +34,11 @@ export async function GET(request) {
       return sum + (item.quantity * item.price);
     }, 0);
 
-    const jumlahPengguna = await prisma.user.count();
+    const jumlahPengguna = await prisma.user.count({
+      where: {
+        role: 'CUSTOMER'
+      }
+    });
     const jumlahMenu = await prisma.menuItem.count();
 
     const stats = [
