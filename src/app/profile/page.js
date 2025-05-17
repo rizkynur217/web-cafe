@@ -58,7 +58,7 @@ export default function ProfilePage() {
   async function handleSubmit(e) {
     e.preventDefault();
     
-    // Prevent admin from updating profile
+    // larangan untuk admin mengganti profilenya
     if (profile.role === "ADMIN") {
       setError("Admin tidak diperbolehkan mengubah profil");
       return;

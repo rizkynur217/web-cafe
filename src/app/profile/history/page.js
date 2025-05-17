@@ -21,7 +21,7 @@ export default function HistoryPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        // Check authentication first
+        // auth
         const authRes = await fetch('/api/auth/me');
         if (!authRes.ok) {
           router.push('/login');
@@ -41,7 +41,7 @@ export default function HistoryPage() {
               const reviewRes = await fetch(`/api/reviews?menuItemId=${item.menuItem.id}&orderId=${order.id}`);
               if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
-                return reviewData[0]; // Get the first review if exists
+                return reviewData[0]; 
               }
               return null;
             }));
@@ -89,7 +89,6 @@ export default function HistoryPage() {
     }).format(price);
   };
 
-  // Function to get status badge color
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING':
@@ -105,7 +104,6 @@ export default function HistoryPage() {
     }
   };
 
-  // Function to handle review submission
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!selectedItem) return;
@@ -133,7 +131,7 @@ export default function HistoryPage() {
         throw new Error(data.error || 'Gagal menambahkan ulasan');
       }
 
-      // Update the orders state with the new review
+      // Update the orders 
       setOrders(orders.map(order => {
         if (order.id === selectedItem.order.id) {
           return {

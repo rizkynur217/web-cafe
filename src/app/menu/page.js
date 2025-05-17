@@ -17,7 +17,7 @@ function MenuPage() {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("ALL");
-  const [cart, setCart] = useState([]); // {id, name, price, qty}
+  const [cart, setCart] = useState([]); // ambil {id, name, price, qty}
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState("");
@@ -41,7 +41,7 @@ function MenuPage() {
     }
     fetchMenu();
 
-    // Check authentication status
+    // authentication
     async function checkAuth() {
       try {
         const res = await fetch("/api/auth/me");
@@ -52,18 +52,14 @@ function MenuPage() {
           setUserData(data); // Save user data
           
           if (typeof window !== "undefined" && data.role !== "ADMIN") {
-            // Check if we're coming from edit
             const isEditing = localStorage.getItem("isEditing");
             if (isEditing) {
-              // Restore cart state
               const cartData = localStorage.getItem("cart");
               if (cartData) {
                 setCart(JSON.parse(cartData));
               }
-              // Clear the editing flag
               localStorage.removeItem("isEditing");
             } else {
-              // Normal flow - check for pending cart
               const pendingCart = localStorage.getItem("pendingCart");
               if (pendingCart) {
                 setCart(JSON.parse(pendingCart));
@@ -79,7 +75,6 @@ function MenuPage() {
     checkAuth();
   }, []);
 
-  // Add effect for error handling
   useEffect(() => {
     let timeoutId;
     if (error) {
@@ -88,8 +83,8 @@ function MenuPage() {
         setShowError(false);
         setTimeout(() => {
           setError("");
-        }, 300); // Wait for fade out animation before clearing error
-      }, 6000); // Changed to exactly 6 seconds
+        }, 300);
+      }, 6000);
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
@@ -100,12 +95,11 @@ function MenuPage() {
     ? menuItems
     : menuItems.filter((item) => item.category === category);
 
-  // Tambah ke keranjang
+  // Tambah (+) ke keranjang
   function addToCart(item) {
     setError("");
     
     if (!isAuthenticated) {
-      // Save current cart to localStorage before redirecting
       const currentCart = [...cart];
       if (typeof window !== "undefined") {
         localStorage.setItem("pendingCart", JSON.stringify(currentCart));
@@ -129,7 +123,7 @@ function MenuPage() {
     });
   }
 
-  // Kurangi dari keranjang
+  // Kurangi (-) dari keranjang
   function removeFromCart(item) {
     if (isAdmin) {
       setError("Admin tidak diperbolehkan melakukan pemesanan");
@@ -141,13 +135,12 @@ function MenuPage() {
       if (exist && exist.qty > 1) {
         return prev.map((c) => c.id === item.id ? { ...c, qty: c.qty - 1 } : c);
       } else {
-        // Jika qty 1, hapus dari cart
         return prev.filter((c) => c.id !== item.id);
       }
     });
   }
 
-  // Ambil qty menu tertentu di cart
+  // Ambil quantity menu tertentu di cart
   function getQty(id) {
     const found = cart.find((c) => c.id === id);
     return found ? found.qty : 0;
@@ -192,7 +185,7 @@ function MenuPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] pb-32">
-      {/* Error Message */}
+      {/* Error  */}
       {error && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-8 py-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
           showError ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
@@ -335,7 +328,7 @@ function MenuPage() {
                     <div className="font-bold text-base sm:text-lg text-white">Rp{Number(item.price).toLocaleString("id-ID")}</div>
                   </div>
 
-                  {/* Image and buttons - right side */}
+                  {/* Image and buttons */}
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-28 h-28 sm:w-32 sm:h-32 relative rounded-xl overflow-hidden bg-white/10">
                       <Image 

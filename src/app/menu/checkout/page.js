@@ -22,7 +22,7 @@ export default function CheckoutPage() {
   }, []);
 
   const productTotal = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const discount = 0; // bisa diubah jika ada promo
+  const discount = 0; 
   const fee = 0;
   const total = productTotal - discount + fee;
 
@@ -51,10 +51,8 @@ export default function CheckoutPage() {
   }
 
   function handleEdit() {
-    // Ensure cart state is preserved in localStorage before navigation
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart));
-      // Also set a flag to indicate we're coming from edit
       localStorage.setItem("isEditing", "true");
     }
     router.push("/menu");

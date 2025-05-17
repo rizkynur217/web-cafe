@@ -37,14 +37,13 @@ export default function Login() {
       if (!res.ok) {
         setError(data.error || "Gagal login.");
       } else {
-        // Check if there's a pending cart
         if (typeof window !== "undefined") {
           const pendingCart = localStorage.getItem("pendingCart");
           if (pendingCart) {
-            localStorage.removeItem("pendingCart"); // Clear the pending cart
-            router.push("/menu"); // Return to menu page
+            localStorage.removeItem("pendingCart"); 
+            router.push("/menu"); 
           } else {
-            // Cek role user dari response
+            // Cek role
             if (data.user && data.user.role === "ADMIN") {
               router.push("/admin");
             } else {

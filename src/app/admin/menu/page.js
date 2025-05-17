@@ -142,7 +142,7 @@ export default function AdminMenuPage() {
         : menus.filter((m) => m.category === categories.find(cat => cat.label === category)?.value))
     : [];
 
-  // Add logout handler
+  // handler logout
   async function handleLogout() {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -187,7 +187,7 @@ export default function AdminMenuPage() {
             <span className="text-2xl">+</span> Tambah Menu
           </button>
         </div>
-        {/* Kategori */}
+        {/* Kategori menu */}
         <div className="flex gap-8 mb-8 flex-wrap">
           {categories.map((cat) => (
             <button
@@ -242,7 +242,7 @@ export default function AdminMenuPage() {
             ))
           )}
         </div>
-        {/* Modal/Form Tambah Menu */}
+        {/* Form Tambah Menu */}
         {showForm && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl w-full max-w-3xl shadow-lg relative flex flex-col min-h-[500px]">
@@ -256,7 +256,7 @@ export default function AdminMenuPage() {
               </div>
               {/* Konten dua kolom */}
               <div className="flex flex-1 gap-8 p-8">
-                {/* Kolom kiri: Gambar */}
+                {/* Gambar */}
                 <div className="flex flex-col items-center w-1/2">
                   <div className="w-56 h-56 relative rounded-xl overflow-hidden bg-gray-50 mb-4 border-2 border-dashed border-gray-300">
                     {form.imageUrl ? (
@@ -277,7 +277,7 @@ export default function AdminMenuPage() {
                     </span>
                   </label>
                 </div>
-                {/* Kolom kanan: Form */}
+                {/* submit */}
                 <form onSubmit={handleSubmit} className="flex flex-col w-1/2 gap-4">
                   <div className="space-y-4">
                     <div>

@@ -15,7 +15,7 @@ export default function AdminHistory() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Add logout handler
+  // handler logout
   async function handleLogout() {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -30,7 +30,7 @@ export default function AdminHistory() {
   }
 
   useEffect(() => {
-    // Fetch completed and cancelled orders
+    // Fetch completed dan cancelled order pelanggan
     fetch('/api/admin/history')
       .then(res => res.json())
       .then(data => {
@@ -43,13 +43,13 @@ export default function AdminHistory() {
       });
   }, []);
 
-  // Helper untuk format waktu
+  // format waktu
   function formatTime(date) {
     const d = new Date(date);
     return d.toLocaleTimeString("id-ID", { hour12: false });
   }
 
-  // Helper untuk format tanggal
+  // format tanggal
   function formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString("id-ID", {
@@ -59,7 +59,7 @@ export default function AdminHistory() {
     }).replace(/\//g, '/');
   }
 
-  // Helper untuk format tanggal ke YYYY-MM-DD untuk input date
+  // format tanggal ke YYYY-MM-DD untuk input date
   function formatDateForInput(date) {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -158,7 +158,7 @@ export default function AdminHistory() {
           <h1 className="text-3xl font-bold text-black">History Pesanan</h1>
         </div>
 
-        {/* Search and Filter Section */}
+        {/* filter */}
         <div className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 text-white mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search Input */}

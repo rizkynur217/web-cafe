@@ -14,8 +14,7 @@ const STATUS_LABEL = {
 export default function AdminDashboard() {
   const [stats, setStats] = useState([]);
   const [orders, setOrders] = useState([]);
-
-  // Add logout handler
+  
   async function handleLogout() {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -40,13 +39,13 @@ export default function AdminDashboard() {
       .catch(err => console.error('Error fetching dashboard data:', err));
   }, []);
 
-  // Helper untuk format waktu
+  // format waktu
   function formatTime(date) {
     const d = new Date(date);
     return d.toLocaleTimeString("id-ID", { hour12: false });
   }
 
-  // Handle status change
+  // Handle saat status akan diubah
   async function handleStatusChange(orderId, newStatus) {
     try {
       const res = await fetch(`/api/order/${orderId}`, {
@@ -62,7 +61,7 @@ export default function AdminDashboard() {
         throw new Error(errorData.error || 'Failed to update status');
       }
 
-      // Update orders list with new status
+      // Update orderan melalui status pemesanan
       if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
         setOrders(orders.filter(order => order.id !== orderId));
       } else {
@@ -100,7 +99,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content - Add margin left to account for fixed sidebar */}
+      {/* Main Content  */}
       <main className="flex-1 p-8 ml-56">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -114,7 +113,7 @@ export default function AdminDashboard() {
           </Link>
         </div>
 
-        {/* Card statistik */}
+        {/* statistik */}
         <div className="grid grid-cols-4 gap-6 mb-8">
           {stats.map((s, i) => (
             <div key={i} className="bg-[#1C1C1C] rounded-2xl shadow-lg p-6 flex flex-col items-center text-white">
